@@ -80,6 +80,14 @@ func main() {
 		objectName := strings.TrimPrefix(filePath, folderPath)
 		filename := filepath.Base(filePath)
 
+		_, err = minioClient.FPutObject(context.Background(), minioBucket, objectName, filePath, minio.PutObjectOptions{})
+		if err != nil {
+			log.Printf("Error uploading %s: %v\n", filePath, err)
+			return err
+		}
+
+		fmt.Printf("Successfully uploaded %s to %s\n", filePath, minioBucket)
+
 		var existingURL, existingFormats string
 		err = pgDB.QueryRow("SELECT url, formats FROM public.files WHERE name = $1", filename).Scan(&existingURL, &existingFormats)
 
@@ -87,14 +95,6 @@ func main() {
 			log.Printf("Error checking file existence in the database: %v\n", err)
 		} else {
 			if existingURL != "" {
-				_, err = minioClient.FPutObject(context.Background(), minioBucket, objectName, filePath, minio.PutObjectOptions{})
-				if err != nil {
-					log.Printf("Error uploading %s: %v\n", filePath, err)
-					return err
-				}
-
-				fmt.Printf("Successfully uploaded %s to %s\n", filePath, minioBucket)
-
 				createUrl := func(path string) string {
 					if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
 						return path
