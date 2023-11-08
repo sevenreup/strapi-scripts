@@ -1,0 +1,1 @@
+go run main.go -minioEndpoint your-minio-server-url:9000 -minioAccessKey key -minioSecretKey key -minioBucket main -folderPath ./dump/upload -pgConnectionString postgresql://postgres:postgrespw@localhost:32768/doorbell?sslmode=disable
